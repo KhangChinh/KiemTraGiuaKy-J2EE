@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ĐKHP - Đăng ký Học phần</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; min-height: 100vh; }
+
+        /* NAVBAR */
+        .navbar { background: rgba(15,15,35,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(99,102,241,0.2); padding: 0 2rem; position: sticky; top: 0; z-index: 1000; }
+        .navbar-content { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 70px; gap: 16px; }
+        .navbar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
+        .navbar-brand .logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; }
+        .navbar-brand .brand-text { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* Search */
+        .search-form { display: flex; flex: 1; max-width: 400px; }
+        .search-form input { flex: 1; padding: 9px 14px; background: rgba(15,15,35,0.8); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px 0 0 10px; color: #e2e8f0; font-size: 0.88rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.3s; }
+        .search-form input:focus { border-color: #6366f1; }
+        .search-form input::placeholder { color: #475569; }
+        .search-form button { padding: 9px 16px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; border-radius: 0 10px 10px 0; color: white; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; }
+        .search-form button:hover { opacity: 0.9; }
+
+        .navbar-links { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .nav-link { padding: 8px 16px; border-radius: 10px; text-decoration: none; color: #94a3b8; font-weight: 500; font-size: 0.9rem; transition: all 0.3s ease; white-space: nowrap; }
+        .nav-link:hover { color: #e2e8f0; background: rgba(99,102,241,0.1); }
+        .nav-link.active { color: #818cf8; background: rgba(99,102,241,0.15); }
+        .btn-login { padding: 8px 20px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.3s ease; cursor: pointer; }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.35); }
+
+        .user-menu { display: flex; align-items: center; gap: 12px; }
+        .user-info { display: flex; align-items: center; gap: 8px; color: #c084fc; font-weight: 600; font-size: 0.9rem; }
+        .user-info .avatar { width: 34px; height: 34px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; font-weight: 700; }
+        .role-badge { padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .role-admin { background: rgba(234,179,8,0.2); color: #fde047; border: 1px solid rgba(234,179,8,0.3); }
+        .role-student { background: rgba(34,197,94,0.2); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+        .btn-admin { padding: 7px 16px; background: rgba(234,179,8,0.15); border: 1px solid rgba(234,179,8,0.3); color: #fde047; border-radius: 10px; font-weight: 500; font-size: 0.85rem; text-decoration: none; transition: all 0.3s ease; }
+        .btn-admin:hover { background: rgba(234,179,8,0.25); color: #fef08a; }
+        .logout-form { display: inline; }
+        .logout-form button { padding: 7px 16px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; border-radius: 10px; font-weight: 500; font-size: 0.85rem; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s ease; }
+        .logout-form button:hover { background: rgba(239,68,68,0.25); color: #fecaca; }
+
+        /* HERO */
+        .hero { background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.05) 100%); padding: 3rem 2rem; text-align: center; border-bottom: 1px solid rgba(99,102,241,0.1); }
+        .hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.8rem; background: linear-gradient(135deg, #e2e8f0, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { color: #94a3b8; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+        .hero .stats { display: flex; justify-content: center; gap: 2.5rem; margin-top: 1.5rem; }
+        .hero .stat-item { text-align: center; }
+        .hero .stat-number { font-size: 1.8rem; font-weight: 800; color: #818cf8; }
+        .hero .stat-label { font-size: 0.85rem; color: #64748b; margin-top: 2px; }
+
+        /* ALERTS */
+        .alert { max-width: 1280px; margin: 1rem auto 0; padding: 12px 18px; border-radius: 12px; font-size: 0.88rem; font-weight: 500; animation: fadeIn 0.4s ease; }
+        .alert-success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
+        .alert-error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+        .search-tag { max-width: 1280px; margin: 1rem auto 0; padding: 10px 18px; color: #94a3b8; font-size: 0.9rem; }
+        .search-tag a { color: #818cf8; text-decoration: none; margin-left: 8px; }
+
+        /* MAIN */
+        .main-content { max-width: 1280px; margin: 0 auto; padding: 2rem; }
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+        .section-title { font-size: 1.4rem; font-weight: 700; color: #e2e8f0; display: flex; align-items: center; gap: 10px; }
+        .section-title i { color: #818cf8; }
+        .total-badge { background: rgba(99,102,241,0.15); color: #818cf8; padding: 4px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+
+        /* COURSE GRID */
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+        .course-card { background: rgba(30,30,60,0.6); border: 1px solid rgba(99,102,241,0.15); border-radius: 16px; overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .course-card:hover { transform: translateY(-8px); border-color: rgba(99,102,241,0.4); box-shadow: 0 20px 60px rgba(99,102,241,0.15); }
+        .course-card .card-image { position: relative; height: 180px; overflow: hidden; }
+        .course-card .card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .course-card:hover .card-image img { transform: scale(1.08); }
+        .course-card .card-image .overlay { position: absolute; bottom: 0; left: 0; right: 0; height: 60%; background: linear-gradient(transparent, rgba(15,15,35,0.9)); }
+        .course-card .card-image .credits-badge { position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+        .course-card .card-image .category-tag { position: absolute; top: 12px; left: 12px; background: rgba(15,15,35,0.8); backdrop-filter: blur(10px); color: #c084fc; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(192,132,252,0.3); }
+        .course-card .card-body { padding: 1.25rem; }
+        .course-card .card-title { font-size: 1.1rem; font-weight: 700; color: #e2e8f0; margin-bottom: 0.75rem; line-height: 1.4; }
+        .course-card .card-info { display: flex; flex-direction: column; gap: 8px; }
+        .course-card .info-item { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: #94a3b8; }
+        .course-card .info-item i { width: 18px; color: #818cf8; font-size: 0.85rem; }
+
+        /* ENROLL BUTTON */
+        .card-actions { padding: 0 1.25rem 1.25rem; }
+        .btn-enroll { width: 100%; padding: 10px; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-enroll:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34,197,94,0.35); }
+        .btn-enrolled { background: rgba(100,116,139,0.3); color: #94a3b8; cursor: default; border: 1px solid rgba(100,116,139,0.3); }
+        .btn-enrolled:hover { transform: none; box-shadow: none; }
+
+        /* PAGINATION */
+        .pagination-container { display: flex; justify-content: center; align-items: center; margin-top: 2.5rem; gap: 6px; }
+        .page-btn { display: flex; align-items: center; justify-content: center; min-width: 42px; height: 42px; padding: 0 14px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; border: 1px solid rgba(99,102,241,0.2); color: #94a3b8; background: rgba(30,30,60,0.6); }
+        .page-btn:hover { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.4); color: #e2e8f0; transform: translateY(-2px); }
+        .page-btn.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); border-color: transparent; color: white; box-shadow: 0 4px 15px rgba(99,102,241,0.4); }
+        .page-btn.disabled { opacity: 0.4; pointer-events: none; }
+
+        /* FOOTER */
+        .footer { text-align: center; padding: 2rem; margin-top: 3rem; border-top: 1px solid rgba(99,102,241,0.1); color: #475569; font-size: 0.85rem; }
+        .empty-state { text-align: center; padding: 4rem 2rem; }
+        .empty-state i { font-size: 4rem; color: #334155; margin-bottom: 1rem; }
+        .empty-state h3 { color: #94a3b8; margin-bottom: 0.5rem; }
+        .empty-state p { color: #64748b; }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) { .course-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.6rem; }
+            .hero .stats { gap: 1.5rem; }
+            .hero .stat-number { font-size: 1.4rem; }
+            .course-grid { grid-template-columns: 1fr; }
+            .section-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .navbar-content { height: auto; flex-wrap: wrap; padding: 10px 0; gap: 8px; }
+            .search-form { max-width: 100%; order: 3; width: 100%; }
+        }
+        @media (max-width: 480px) { .main-content { padding: 1rem; } .hero { padding: 2rem 1rem; } .course-card .card-image { height: 160px; } .pagination-container { flex-wrap: wrap; } }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .course-card { animation: fadeInUp 0.6s ease forwards; }
+        .course-card:nth-child(1) { animation-delay: 0.05s; }
+        .course-card:nth-child(2) { animation-delay: 0.1s; }
+        .course-card:nth-child(3) { animation-delay: 0.15s; }
+        .course-card:nth-child(4) { animation-delay: 0.2s; }
+        .course-card:nth-child(5) { animation-delay: 0.25s; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-content">
+        <a href="/" class="navbar-brand">
+            <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+            <span class="brand-text">ĐKHP Online</span>
+        </a>
+
+        <!-- Search bar -->
+        <form class="search-form" th:action="@{/home}" method="get">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm học phần...">
+            <button type="submit"><i class="fas fa-search"></i></button>
+        </form>
+
+        <div class="navbar-links">
+            <a href="/" class="nav-link active"><i class="fas fa-home"></i> Trang chủ</a>
+
+            <!-- Khi đã đăng nhập -->
+            <div class="user-menu" sec:authorize="isAuthenticated()">
+                <a href="/enroll/my-courses" class="nav-link" sec:authorize="hasAuthority('STUDENT')">
+                    <i class="fas fa-book-reader"></i> Học phần của tôi
+                </a>
+                <a href="/admin/courses" class="btn-admin" sec:authorize="hasAuthority('ADMIN')">
+                    <i class="fas fa-cog"></i> Quản lý
+                </a>
+                <div class="user-info">
+                    <div class="avatar"><i class="fas fa-user"></i></div>
+                    <span sec:authentication="name">Username</span>
+                    <span class="role-badge role-admin" sec:authorize="hasAuthority('ADMIN')">Admin</span>
+                    <span class="role-badge role-student" sec:authorize="hasAuthority('STUDENT')">Student</span>
+                </div>
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+                </form>
+            </div>
+
+            <!-- Khi chưa đăng nhập -->
+            <div sec:authorize="!isAuthenticated()" style="display:flex;gap:8px;align-items:center;">
+                <a href="/register" class="nav-link"><i class="fas fa-user-plus"></i> Đăng ký</a>
+                <a href="/login" class="btn-login"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <h1><i class="fas fa-book-open"></i> Danh sách Học phần</h1>
+    <p>Khám phá và đăng ký các học phần phù hợp với chương trình đào tạo của bạn</p>
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-number" th:text="${totalItems}">0</div>
+            <div class="stat-label">Học phần</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" th:text="${totalPages}">0</div>
+            <div class="stat-label">Trang</div>
+        </div>
+    </div>
+</section>
+
+<!-- Alerts -->
+<div class="alert alert-success" th:if="${success}" style="margin-left:auto;margin-right:auto;padding-left:2rem;padding-right:2rem;">
+    <i class="fas fa-check-circle"></i> <span th:text="${success}">Thành công</span>
+</div>
+<div class="alert alert-error" th:if="${error}" style="margin-left:auto;margin-right:auto;padding-left:2rem;padding-right:2rem;">
+    <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Lỗi</span>
+</div>
+
+<!-- Search tag -->
+<div class="search-tag" th:if="${keyword != null && !keyword.isEmpty()}">
+    <i class="fas fa-search"></i> Kết quả tìm kiếm cho: <strong th:text="${keyword}">keyword</strong>
+    <span th:text="'(' + ${totalItems} + ' kết quả)'"></span>
+    <a href="/home"><i class="fas fa-times"></i> Xóa bộ lọc</a>
+</div>
+
+<!-- Main Content -->
+<main class="main-content">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="fas fa-layer-group"></i>
+            Học phần hiện có
+        </h2>
+        <span class="total-badge" th:text="'Trang ' + (${currentPage} + 1) + ' / ' + (${totalPages} > 0 ? ${totalPages} : 1)">Trang 1 / 1</span>
+    </div>
+
+    <!-- Course Grid -->
+    <div class="course-grid" th:if="${#lists.size(courses) > 0}">
+        <div class="course-card" th:each="course : ${courses}">
+            <div class="card-image">
+                <img th:src="${course.image != null && !course.image.isEmpty()} ? ${course.image} : 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=400&h=250&fit=crop'"
+                     th:alt="${course.name}" loading="lazy">
+                <div class="overlay"></div>
+                <span class="credits-badge">
+                    <i class="fas fa-star"></i>
+                    <span th:text="${course.credits} + ' tín chỉ'">3 tín chỉ</span>
+                </span>
+                <span class="category-tag" th:if="${course.category != null}" th:text="${course.category.name}">Danh mục</span>
+            </div>
+            <div class="card-body">
+                <h3 class="card-title" th:text="${course.name}">Tên học phần</h3>
+                <div class="card-info">
+                    <div class="info-item">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span th:text="${course.lecturer != null} ? ${course.lecturer} : 'Chưa phân công'">Giảng viên</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-credit-card"></i>
+                        <span th:text="${course.credits} + ' tín chỉ'">3 tín chỉ</span>
+                    </div>
+                    <div class="info-item" th:if="${course.category != null}">
+                        <i class="fas fa-folder"></i>
+                        <span th:text="${course.category.name}">Danh mục</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Enroll button (chỉ STUDENT mới thấy) -->
+            <div class="card-actions" sec:authorize="hasAuthority('STUDENT')">
+                <form th:if="${!enrolledCourseIds.contains(course.id)}" th:action="@{/enroll/{id}(id=${course.id})}" method="post">
+                    <button type="submit" class="btn-enroll">
+                        <i class="fas fa-plus-circle"></i> Đăng ký học phần
+                    </button>
+                </form>
+                <div th:if="${enrolledCourseIds.contains(course.id)}">
+                    <button class="btn-enroll btn-enrolled" disabled>
+                        <i class="fas fa-check-circle"></i> Đã đăng ký
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" th:if="${#lists.size(courses) == 0}">
+        <i class="fas fa-inbox"></i>
+        <h3 th:if="${keyword != null}">Không tìm thấy học phần nào</h3>
+        <h3 th:if="${keyword == null}">Chưa có học phần nào</h3>
+        <p th:if="${keyword != null}">Thử tìm kiếm với từ khóa khác.</p>
+        <p th:if="${keyword == null}">Hiện tại chưa có học phần nào trong hệ thống.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" th:if="${totalPages > 1}">
+        <a class="page-btn" th:classappend="${currentPage == 0} ? 'disabled'"
+           th:href="@{/home(page=${currentPage - 1}, keyword=${keyword})}">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a class="page-btn" th:classappend="${i == currentPage} ? 'active'"
+               th:href="@{/home(page=${i}, keyword=${keyword})}"
+               th:text="${i + 1}">1</a>
+        </th:block>
+        <a class="page-btn" th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+           th:href="@{/home(page=${currentPage + 1}, keyword=${keyword})}">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>&copy; 2026 ĐKHP Online - Hệ thống Đăng ký Học phần</p>
+</footer>
+
+</body>
+</html>

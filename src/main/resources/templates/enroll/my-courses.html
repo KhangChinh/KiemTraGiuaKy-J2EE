@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học phần của tôi - ĐKHP Online</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; min-height: 100vh; }
+
+        .navbar { background: rgba(15,15,35,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(34,197,94,0.3); padding: 0 2rem; position: sticky; top: 0; z-index: 1000; }
+        .navbar-content { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 70px; }
+        .navbar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .navbar-brand .logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; }
+        .navbar-brand .brand-text { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #86efac, #22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .navbar-links { display: flex; align-items: center; gap: 8px; }
+        .nav-link { padding: 8px 16px; border-radius: 10px; text-decoration: none; color: #94a3b8; font-weight: 500; font-size: 0.9rem; transition: all 0.3s; }
+        .nav-link:hover { color: #e2e8f0; background: rgba(34,197,94,0.1); }
+        .user-info { display: flex; align-items: center; gap: 8px; color: #86efac; font-weight: 600; font-size: 0.9rem; }
+        .user-info .avatar { width: 34px; height: 34px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; }
+        .role-badge { padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; background: rgba(34,197,94,0.2); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+        .logout-form { display: inline; }
+        .logout-form button { padding: 7px 16px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; border-radius: 10px; font-weight: 500; font-size: 0.85rem; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; }
+        .logout-form button:hover { background: rgba(239,68,68,0.25); }
+
+        .main-content { max-width: 1280px; margin: 0 auto; padding: 2rem; }
+
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .page-title { font-size: 1.6rem; font-weight: 800; background: linear-gradient(135deg, #86efac, #22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .total-count { background: rgba(34,197,94,0.15); color: #86efac; padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+
+        .alert { padding: 12px 18px; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.88rem; font-weight: 500; animation: fadeIn 0.4s ease; }
+        .alert-success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ENROLLMENT TABLE */
+        .table-container { background: rgba(30,30,60,0.6); border: 1px solid rgba(34,197,94,0.15); border-radius: 16px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th { background: rgba(34,197,94,0.1); padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.85rem; color: #86efac; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(34,197,94,0.2); }
+        tbody td { padding: 14px 16px; border-bottom: 1px solid rgba(99,102,241,0.08); font-size: 0.9rem; vertical-align: middle; }
+        tbody tr { transition: background 0.2s; }
+        tbody tr:hover { background: rgba(34,197,94,0.05); }
+        tbody tr:last-child td { border-bottom: none; }
+
+        .course-img { width: 80px; height: 50px; object-fit: cover; border-radius: 8px; }
+        .credits-badge { background: rgba(99,102,241,0.15); color: #818cf8; padding: 3px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
+        .category-badge { background: rgba(192,132,252,0.15); color: #c084fc; padding: 3px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+        .date-badge { color: #94a3b8; font-size: 0.85rem; }
+
+        .btn-cancel { padding: 6px 14px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; }
+        .btn-cancel:hover { background: rgba(239,68,68,0.25); }
+
+        .empty-state { text-align: center; padding: 4rem 2rem; }
+        .empty-state i { font-size: 4rem; color: #334155; margin-bottom: 1rem; }
+        .empty-state h3 { color: #94a3b8; margin-bottom: 0.5rem; }
+        .empty-state p { color: #64748b; margin-bottom: 1.5rem; }
+        .btn-browse { padding: 10px 24px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border-radius: 12px; text-decoration: none; font-weight: 600; transition: all 0.3s; }
+        .btn-browse:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.35); }
+
+        @media (max-width: 768px) { .table-container { overflow-x: auto; } table { min-width: 700px; } .page-header { flex-direction: column; align-items: flex-start; } }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-content">
+        <a href="/enroll/my-courses" class="navbar-brand">
+            <div class="logo-icon"><i class="fas fa-book-reader"></i></div>
+            <span class="brand-text">Học phần của tôi</span>
+        </a>
+        <div class="navbar-links">
+            <a href="/" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+            <div class="user-info">
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <span sec:authentication="name">Student</span>
+                <span class="role-badge">Student</span>
+            </div>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-book-open"></i> Học phần đã đăng ký</h1>
+        <span class="total-count" th:text="${#lists.size(enrollments)} + ' học phần'">0 học phần</span>
+    </div>
+
+    <div class="alert alert-success" th:if="${success}">
+        <i class="fas fa-check-circle"></i> <span th:text="${success}">Thành công</span>
+    </div>
+
+    <div class="table-container" th:if="${#lists.size(enrollments) > 0}">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hình ảnh</th>
+                    <th>Tên học phần</th>
+                    <th>Tín chỉ</th>
+                    <th>Giảng viên</th>
+                    <th>Danh mục</th>
+                    <th>Ngày ĐK</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="enrollment, iter : ${enrollments}">
+                    <td th:text="${iter.index + 1}">1</td>
+                    <td>
+                        <img class="course-img"
+                             th:src="${enrollment.course.image != null && !enrollment.course.image.isEmpty()} ? ${enrollment.course.image} : 'https://via.placeholder.com/80x50'"
+                             th:alt="${enrollment.course.name}">
+                    </td>
+                    <td th:text="${enrollment.course.name}">Course</td>
+                    <td><span class="credits-badge" th:text="${enrollment.course.credits}">3</span></td>
+                    <td th:text="${enrollment.course.lecturer}">GV</td>
+                    <td>
+                        <span class="category-badge" th:if="${enrollment.course.category != null}" th:text="${enrollment.course.category.name}">Cat</span>
+                    </td>
+                    <td><span class="date-badge" th:text="${enrollment.enrollDate}">2026-01-01</span></td>
+                    <td>
+                        <form th:action="@{/enroll/cancel/{id}(id=${enrollment.id})}" method="post"
+                              onsubmit="return confirm('Bạn có chắc muốn hủy đăng ký học phần này?')">
+                            <button type="submit" class="btn-cancel">
+                                <i class="fas fa-times"></i> Hủy ĐK
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="empty-state" th:if="${#lists.size(enrollments) == 0}">
+        <i class="fas fa-inbox"></i>
+        <h3>Chưa đăng ký học phần nào</h3>
+        <p>Hãy truy cập trang chủ để đăng ký các học phần.</p>
+        <a href="/" class="btn-browse"><i class="fas fa-search"></i> Xem danh sách học phần</a>
+    </div>
+</main>
+
+</body>
+</html>

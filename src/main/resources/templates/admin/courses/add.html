@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Học phần - ĐKHP Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f0f23;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(234, 179, 8, 0.3);
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .navbar-brand .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #eab308, #f59e0b);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .navbar-brand .brand-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fde047, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #94a3b8;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover { color: #e2e8f0; }
+
+        .main-content {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fde047, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+        }
+
+        .form-card {
+            background: rgba(30, 30, 60, 0.6);
+            border: 1px solid rgba(234, 179, 8, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .alert-danger {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 1.2rem;
+            font-size: 0.88rem;
+            font-weight: 500;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .form-group {
+            margin-bottom: 1.3rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #94a3b8;
+            font-weight: 500;
+            font-size: 0.88rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input[type="file"] {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input[type="file"]::file-selector-button {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #eab308;
+            box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.15);
+        }
+
+        .form-group input::placeholder { color: #475569; }
+
+        .form-group select option {
+            background: #1e1e3c;
+            color: #e2e8f0;
+        }
+
+        .separator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            color: #475569;
+            font-size: 0.8rem;
+        }
+
+        .separator::before, .separator::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 1.5rem;
+        }
+
+        .btn-save {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.35);
+        }
+
+        .btn-cancel {
+            padding: 12px 28px;
+            background: rgba(100, 116, 139, 0.2);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            color: #94a3b8;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-cancel:hover { background: rgba(100, 116, 139, 0.3); color: #e2e8f0; }
+
+        @media (max-width: 768px) {
+            .main-content { padding: 1rem; }
+            .form-actions { flex-direction: column; }
+            .btn-save, .btn-cancel { text-align: center; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-content">
+        <a href="/admin/courses" class="navbar-brand">
+            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+            <span class="brand-text">ĐKHP Admin</span>
+        </a>
+        <a href="/admin/courses" class="nav-link"><i class="fas fa-arrow-left"></i> Quay lại</a>
+    </div>
+</nav>
+
+<main class="main-content">
+    <h1 class="page-title"><i class="fas fa-plus-circle"></i> Thêm Học phần mới</h1>
+
+    <div class="form-card">
+        <div class="alert-danger" th:if="${error}">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Lỗi</span>
+        </div>
+
+        <form th:action="@{/admin/courses/add}" method="post" th:object="${course}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Tên học phần *</label>
+                <input type="text" id="name" th:field="*{name}" placeholder="Nhập tên học phần" required>
+            </div>
+
+            <div class="form-group">
+                <label for="credits">Số tín chỉ *</label>
+                <input type="number" id="credits" th:field="*{credits}" placeholder="VD: 3" min="1" max="10" required>
+            </div>
+
+            <div class="form-group">
+                <label for="lecturer">Giảng viên</label>
+                <input type="text" id="lecturer" th:field="*{lecturer}" placeholder="VD: TS. Nguyễn Văn A">
+            </div>
+
+            <div class="form-group">
+                <label>Hình ảnh</label>
+                <input type="file" id="imageFile" name="imageFile" accept="image/*">
+                <div class="separator">hoặc nhập URL</div>
+                <input type="text" id="image" th:field="*{image}" placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="form-group">
+                <label for="category">Danh mục</label>
+                <select id="category" th:field="*{category.id}">
+                    <option value="">-- Chọn danh mục --</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Cat</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Lưu học phần
+                </button>
+                <a href="/admin/courses" class="btn-cancel">Hủy</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+</body>
+</html>
