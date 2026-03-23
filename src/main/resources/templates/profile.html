@@ -131,7 +131,10 @@
         <!-- ID -->
         <div class="profile-field">
             <div class="field-info">
-                <div class="field-label"><i class="fas fa-id-badge"></i> Mã sinh viên</div>
+                <div class="field-label">
+                    <i class="fas fa-id-badge"></i>
+                    <span th:text="${#sets.contains(student.roles.![name], 'ADMIN')} ? 'Mã tài khoản' : 'Mã sinh viên'">Mã</span>
+                </div>
                 <div class="field-value" th:text="${student.studentId}">1</div>
             </div>
         </div>

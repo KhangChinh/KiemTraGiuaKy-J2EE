@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS course (
     credits INT NOT NULL DEFAULT 3,
     lecturer VARCHAR(255),
     category_id INT,
+    description VARCHAR(1000),
     FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -62,7 +63,7 @@ CREATE TABLE IF NOT EXISTS enrollment (
 -- =============================================
 
 -- Roles
-INSERT INTO role (name) VALUES ('ADMIN'), ('STUDENT');
+INSERT INTO role (name) VALUES ('ADMIN'), ('STUDENT'), ('TEACHER');
 
 -- Categories
 INSERT INTO category (name) VALUES 
@@ -84,7 +85,3 @@ INSERT INTO course (name, image, credits, lecturer, category_id) VALUES
 ('An toàn Thông tin', 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=400&h=250&fit=crop', 3, 'PGS.TS. Lý Thị K', 3),
 ('Phân tích Thiết kế Hệ thống', 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=250&fit=crop', 3, 'ThS. Trương Văn L', 3),
 ('Xác suất Thống kê', 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&h=250&fit=crop', 3, 'TS. Mai Thị M', 1);
-
--- Assign roles
-INSERT INTO student_role (student_id, role_id) VALUES (1, 1); -- admin -> ADMIN
-INSERT INTO student_role (student_id, role_id) VALUES (2, 2); -- student1 -> STUDENT

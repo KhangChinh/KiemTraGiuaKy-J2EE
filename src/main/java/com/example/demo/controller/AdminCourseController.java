@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Course;
+import com.example.demo.model.Student;
 import com.example.demo.repository.EnrollmentRepository;
+import com.example.demo.repository.StudentRepository;
 import com.example.demo.service.CategoryService;
 import com.example.demo.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ public class AdminCourseController {
     @Autowired
     private EnrollmentRepository enrollmentRepository;
 
+    @Autowired
+    private StudentRepository studentRepository;
+
     private static final String UPLOAD_DIR = "src/main/resources/static/images/";
 
     // Danh sách courses (có tìm kiếm)
@@ -60,6 +65,7 @@ public class AdminCourseController {
     public String showAddForm(Model model) {
         model.addAttribute("course", new Course());
         model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
         return "admin/courses/add";
     }
 
@@ -73,11 +79,13 @@ public class AdminCourseController {
         if (course.getName() == null || course.getName().trim().isEmpty()) {
             model.addAttribute("error", "Tên học phần không được để trống!");
             model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
             return "admin/courses/add";
         }
         if (course.getCredits() == null || course.getCredits() < 1) {
             model.addAttribute("error", "Số tín chỉ phải từ 1 trở lên!");
             model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
             return "admin/courses/add";
         }
 
@@ -96,6 +104,7 @@ public class AdminCourseController {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy học phần với ID: " + id));
         model.addAttribute("course", course);
         model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
         return "admin/courses/edit";
     }
 
@@ -110,11 +119,13 @@ public class AdminCourseController {
         if (course.getName() == null || course.getName().trim().isEmpty()) {
             model.addAttribute("error", "Tên học phần không được để trống!");
             model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
             return "admin/courses/edit";
         }
         if (course.getCredits() == null || course.getCredits() < 1) {
             model.addAttribute("error", "Số tín chỉ phải từ 1 trở lên!");
             model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
             return "admin/courses/edit";
         }
 
