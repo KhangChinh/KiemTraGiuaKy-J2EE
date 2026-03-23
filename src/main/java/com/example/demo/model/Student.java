@@ -28,6 +28,9 @@ public class Student {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(length = 500)
+    private String image;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "student_role",

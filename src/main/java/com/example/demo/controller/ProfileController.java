@@ -9,7 +9,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/profile")
@@ -20,6 +27,8 @@ public class ProfileController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private static final String UPLOAD_DIR = "src/main/resources/static/images/";
 
     @GetMapping
     public String viewProfile(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
@@ -80,6 +89,35 @@ public class ProfileController {
         userDetails.getStudent().setPassword(student.getPassword());
 
         redirectAttributes.addFlashAttribute("success", "Cập nhật thành công!");
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/upload-image")
+    public String uploadImage(@AuthenticationPrincipal CustomUserDetails userDetails,
+                              @RequestParam("imageFile") MultipartFile imageFile,
+                              RedirectAttributes redirectAttributes) {
+        if (imageFile == null || imageFile.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng chọn một tệp hình ảnh!");
+            return "redirect:/profile";
+        }
+
+        Student student = studentRepository.findById(userDetails.getStudent().getStudentId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+        try {
+            String fileName = UUID.randomUUID().toString() + "_" + imageFile.getOriginalFilename();
+            Path path = Paths.get(UPLOAD_DIR + fileName);
+            Files.createDirectories(path.getParent());
+            Files.write(path, imageFile.getBytes());
+            student.setImage("/images/" + fileName);
+            studentRepository.save(student);
+            userDetails.getStudent().setImage(student.getImage());
+            redirectAttributes.addFlashAttribute("success", "Cập nhật ảnh đại diện thành công!");
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi tải ảnh lên!");
+            e.printStackTrace();
+        }
+
         return "redirect:/profile";
     }
 }

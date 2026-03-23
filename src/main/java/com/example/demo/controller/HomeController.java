@@ -46,6 +46,7 @@ public class HomeController {
         Set<Long> enrolledCourseIds = new HashSet<>();
         if (userDetails != null) {
             enrolledCourseIds = enrollmentService.getEnrolledCourseIds(userDetails.getStudent().getStudentId());
+            model.addAttribute("currentUser", userDetails.getStudent());
         }
 
         model.addAttribute("courses", coursePage.getContent());

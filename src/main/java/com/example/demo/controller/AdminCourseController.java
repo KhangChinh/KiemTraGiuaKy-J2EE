@@ -147,6 +147,17 @@ public class AdminCourseController {
         return "redirect:/admin/courses?deleted";
     }
 
+    // Danh sách sinh viên đăng ký
+    @GetMapping("/enrollments/{id}")
+    public String viewEnrollments(@PathVariable("id") Long id, Model model) {
+        Course course = courseService.getCourseById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy học phần với ID: " + id));
+        var enrollments = enrollmentRepository.findByCourseId(id);
+        model.addAttribute("course", course);
+        model.addAttribute("enrollments", enrollments);
+        return "admin/courses/enrollments";
+    }
+
     // Helper: Xử lý upload hình ảnh
     private void handleImageUpload(Course course, MultipartFile imageFile) {
         if (imageFile != null && !imageFile.isEmpty()) {

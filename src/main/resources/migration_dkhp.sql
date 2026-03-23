@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS student (
     student_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE
+    email VARCHAR(255) NOT NULL UNIQUE,
+    image VARCHAR(500)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Bảng Role
@@ -24,7 +25,6 @@ CREATE TABLE IF NOT EXISTS role (
 CREATE TABLE IF NOT EXISTS student_role (
     student_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
-    image VARCHAR(500),
     PRIMARY KEY (student_id, role_id),
     FOREIGN KEY (student_id) REFERENCES student(student_id) ON DELETE CASCADE,
     FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE

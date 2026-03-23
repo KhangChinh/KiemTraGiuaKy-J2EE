@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ĐKHP - Đăng ký Học phần</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -165,7 +166,10 @@
                     <i class="fas fa-cog"></i> Quản lý
                 </a>
                 <a href="/profile" class="user-info" style="text-decoration:none;">
-                    <div class="avatar"><i class="fas fa-user"></i></div>
+                    <img th:if="${currentUser != null && currentUser.image != null && !currentUser.image.isEmpty()}"
+                         th:src="${currentUser.image}" alt="Avatar"
+                         style="width:34px;height:34px;border-radius:50%;object-fit:cover;">
+                    <div class="avatar" th:if="${currentUser == null || currentUser.image == null || currentUser.image.isEmpty()}"><i class="fas fa-user"></i></div>
                     <span sec:authentication="name">Username</span>
                     <span class="role-badge role-admin" sec:authorize="hasAuthority('ADMIN')">Admin</span>
                     <span class="role-badge role-student" sec:authorize="hasAuthority('STUDENT')">Student</span>

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thông tin cá nhân - ĐKHP Online</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -25,8 +26,14 @@
 
         .main-content { max-width: 650px; margin: 0 auto; padding: 2rem; }
 
-        .profile-header { text-align: center; margin-bottom: 2.5rem; }
-        .profile-avatar { width: 90px; height: 90px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2.2rem; color: white; box-shadow: 0 8px 32px rgba(99,102,241,0.3); }
+        .profile-header { text-align: center; margin-bottom: 2.5rem; position: relative; }
+        .profile-avatar-wrapper { position: relative; display: inline-block; margin-bottom: 1rem; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(99,102,241,0.4); box-shadow: 0 8px 32px rgba(99,102,241,0.3); }
+        .profile-avatar-default { width: 100px; height: 100px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white; box-shadow: 0 8px 32px rgba(99,102,241,0.3); }
+        .avatar-upload-overlay { position: absolute; bottom: 0; right: 0; width: 34px; height: 34px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid #0f0f23; transition: transform 0.3s; }
+        .avatar-upload-overlay:hover { transform: scale(1.1); }
+        .avatar-upload-overlay i { color: white; font-size: 0.8rem; }
+        .avatar-upload-input { display: none; }
         .profile-header h1 { font-size: 1.6rem; font-weight: 800; background: linear-gradient(135deg, #e2e8f0, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.3rem; }
         .profile-header p { color: #64748b; font-size: 0.9rem; }
 
@@ -50,7 +57,6 @@
         .btn-field-edit { padding: 6px 14px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); color: #818cf8; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 5px; }
         .btn-field-edit:hover { background: rgba(99,102,241,0.25); }
 
-        /* Inline edit form */
         .edit-form { display: none; flex: 1; }
         .edit-form.active { display: flex; align-items: center; gap: 8px; }
         .edit-form input { flex: 1; padding: 10px 14px; background: rgba(15,15,35,0.8); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; color: #e2e8f0; font-size: 0.95rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.3s; }
@@ -96,7 +102,20 @@
 
 <main class="main-content">
     <div class="profile-header">
-        <div class="profile-avatar"><i class="fas fa-user"></i></div>
+        <form th:action="@{/profile/upload-image}" method="post" enctype="multipart/form-data" id="avatarForm">
+            <div class="profile-avatar-wrapper">
+                <img th:if="${student.image != null && !student.image.isEmpty()}"
+                     th:src="${student.image}" class="profile-avatar" alt="Avatar">
+                <div th:if="${student.image == null || student.image.isEmpty()}" class="profile-avatar-default">
+                    <i class="fas fa-user"></i>
+                </div>
+                <label class="avatar-upload-overlay" for="avatarInput" title="Đổi ảnh đại diện">
+                    <i class="fas fa-camera"></i>
+                </label>
+                <input type="file" name="imageFile" id="avatarInput" class="avatar-upload-input"
+                       accept="image/*" onchange="document.getElementById('avatarForm').submit();">
+            </div>
+        </form>
         <h1 th:text="${student.username}">Username</h1>
         <p>Quản lý thông tin cá nhân của bạn</p>
     </div>
