@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS role (
 CREATE TABLE IF NOT EXISTS student_role (
     student_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
+    image VARCHAR(500),
     PRIMARY KEY (student_id, role_id),
     FOREIGN KEY (student_id) REFERENCES student(student_id) ON DELETE CASCADE,
     FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE

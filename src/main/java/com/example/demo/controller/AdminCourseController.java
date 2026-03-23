@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Course;
+import com.example.demo.repository.EnrollmentRepository;
 import com.example.demo.service.CategoryService;
 import com.example.demo.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -26,18 +30,28 @@ public class AdminCourseController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
+
     private static final String UPLOAD_DIR = "src/main/resources/static/images/";
 
     // Danh sách courses (có tìm kiếm)
     @GetMapping
     public String listCourses(@RequestParam(value = "keyword", required = false) String keyword,
                               Model model) {
+        List<Course> courses;
         if (keyword != null && !keyword.trim().isEmpty()) {
-            model.addAttribute("courses", courseService.searchCourses(keyword.trim()));
+            courses = courseService.searchCourses(keyword.trim());
             model.addAttribute("keyword", keyword.trim());
         } else {
-            model.addAttribute("courses", courseService.getAllCourses());
+            courses = courseService.getAllCourses();
         }
+        Map<Long, Long> enrollCountMap = new HashMap<>();
+        for (Course c : courses) {
+            enrollCountMap.put(c.getId(), enrollmentRepository.countByCourseId(c.getId()));
+        }
+        model.addAttribute("courses", courses);
+        model.addAttribute("enrollCountMap", enrollCountMap);
         return "admin/courses/list";
     }
 
@@ -123,7 +137,12 @@ public class AdminCourseController {
 
     // Xóa course
     @GetMapping("/delete/{id}")
-    public String deleteCourse(@PathVariable("id") Long id) {
+    public String deleteCourse(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        long enrollCount = enrollmentRepository.countByCourseId(id);
+        if (enrollCount > 0) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa học phần đang có " + enrollCount + " sinh viên đăng ký!");
+            return "redirect:/admin/courses";
+        }
         courseService.deleteCourse(id);
         return "redirect:/admin/courses?deleted";
     }

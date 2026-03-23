@@ -164,12 +164,12 @@
                 <a href="/admin/courses" class="btn-admin" sec:authorize="hasAuthority('ADMIN')">
                     <i class="fas fa-cog"></i> Quản lý
                 </a>
-                <div class="user-info">
+                <a href="/profile" class="user-info" style="text-decoration:none;">
                     <div class="avatar"><i class="fas fa-user"></i></div>
                     <span sec:authentication="name">Username</span>
                     <span class="role-badge role-admin" sec:authorize="hasAuthority('ADMIN')">Admin</span>
                     <span class="role-badge role-student" sec:authorize="hasAuthority('STUDENT')">Student</span>
-                </div>
+                </a>
                 <form th:action="@{/logout}" method="post" class="logout-form">
                     <button type="submit"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
                 </form>

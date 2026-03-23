@@ -324,11 +324,11 @@
         </a>
         <div class="navbar-links">
             <a href="/" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
-            <div class="user-info">
+            <a href="/profile" class="user-info" style="text-decoration:none;">
                 <div class="avatar"><i class="fas fa-user"></i></div>
                 <span sec:authentication="name">Admin</span>
                 <span class="role-badge">Admin</span>
-            </div>
+            </a>
             <form th:action="@{/logout}" method="post" class="logout-form">
                 <button type="submit"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
             </form>
@@ -339,9 +339,14 @@
 <main class="main-content">
     <div class="page-header">
         <h1 class="page-title"><i class="fas fa-book"></i> Quản lý Học phần</h1>
-        <a href="/admin/courses/add" class="btn-add">
-            <i class="fas fa-plus"></i> Thêm học phần
-        </a>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <a href="/admin/courses/add" class="btn-add">
+                <i class="fas fa-plus"></i> Thêm học phần
+            </a>
+            <a href="/admin/categories" class="btn-add" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);">
+                <i class="fas fa-folder"></i> Quản lý danh mục
+            </a>
+        </div>
     </div>
 
     <!-- Search -->
@@ -398,7 +403,8 @@
                             <a th:href="@{/admin/courses/edit/{id}(id=${course.id})}" class="btn-edit">
                                 <i class="fas fa-edit"></i> Sửa
                             </a>
-                            <a th:href="@{/admin/courses/delete/{id}(id=${course.id})}" class="btn-delete"
+                            <a th:if="${enrollCountMap[course.id] == 0}"
+                               th:href="@{/admin/courses/delete/{id}(id=${course.id})}" class="btn-delete"
                                onclick="return confirm('Bạn có chắc muốn xóa học phần này?')">
                                 <i class="fas fa-trash"></i> Xóa
                             </a>

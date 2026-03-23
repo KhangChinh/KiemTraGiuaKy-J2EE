@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin cá nhân - ĐKHP Online</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; min-height: 100vh; }
+
+        .navbar { background: rgba(15,15,35,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(99,102,241,0.2); padding: 0 2rem; position: sticky; top: 0; z-index: 1000; }
+        .navbar-content { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 70px; }
+        .navbar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .navbar-brand .logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; }
+        .navbar-brand .brand-text { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .navbar-links { display: flex; align-items: center; gap: 8px; }
+        .nav-link { padding: 8px 16px; border-radius: 10px; text-decoration: none; color: #94a3b8; font-weight: 500; font-size: 0.9rem; transition: all 0.3s ease; }
+        .nav-link:hover { color: #e2e8f0; background: rgba(99,102,241,0.1); }
+        .logout-form { display: inline; }
+        .logout-form button { padding: 7px 16px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; border-radius: 10px; font-weight: 500; font-size: 0.85rem; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s ease; }
+        .logout-form button:hover { background: rgba(239,68,68,0.25); }
+
+        .main-content { max-width: 650px; margin: 0 auto; padding: 2rem; }
+
+        .profile-header { text-align: center; margin-bottom: 2.5rem; }
+        .profile-avatar { width: 90px; height: 90px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2.2rem; color: white; box-shadow: 0 8px 32px rgba(99,102,241,0.3); }
+        .profile-header h1 { font-size: 1.6rem; font-weight: 800; background: linear-gradient(135deg, #e2e8f0, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.3rem; }
+        .profile-header p { color: #64748b; font-size: 0.9rem; }
+
+        .alert { padding: 12px 18px; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.88rem; font-weight: 500; animation: fadeIn 0.4s ease; }
+        .alert-success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
+        .alert-danger { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .profile-card { background: rgba(30,30,60,0.6); border: 1px solid rgba(99,102,241,0.15); border-radius: 16px; overflow: hidden; }
+
+        .profile-field { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid rgba(99,102,241,0.08); transition: background 0.2s; }
+        .profile-field:last-child { border-bottom: none; }
+        .profile-field:hover { background: rgba(99,102,241,0.03); }
+
+        .field-info { flex: 1; }
+        .field-label { font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .field-label i { color: #818cf8; font-size: 0.8rem; }
+        .field-value { font-size: 1rem; font-weight: 500; color: #e2e8f0; }
+        .field-value-password { color: #64748b; letter-spacing: 2px; }
+
+        .btn-field-edit { padding: 6px 14px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); color: #818cf8; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 5px; }
+        .btn-field-edit:hover { background: rgba(99,102,241,0.25); }
+
+        /* Inline edit form */
+        .edit-form { display: none; flex: 1; }
+        .edit-form.active { display: flex; align-items: center; gap: 8px; }
+        .edit-form input { flex: 1; padding: 10px 14px; background: rgba(15,15,35,0.8); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; color: #e2e8f0; font-size: 0.95rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.3s; }
+        .edit-form input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+        .btn-save { padding: 8px 16px; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; }
+        .btn-save:hover { box-shadow: 0 4px 15px rgba(34,197,94,0.35); }
+        .btn-cancel-edit { padding: 8px 14px; background: rgba(100,116,139,0.15); border: 1px solid rgba(100,116,139,0.3); color: #94a3b8; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; }
+        .btn-cancel-edit:hover { background: rgba(100,116,139,0.25); color: #e2e8f0; }
+
+        .display-group { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .display-group.hidden { display: none; }
+
+        .role-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+        .role-badge { padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .role-admin { background: rgba(234,179,8,0.2); color: #fde047; border: 1px solid rgba(234,179,8,0.3); }
+        .role-student { background: rgba(34,197,94,0.2); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+
+        .back-link { display: block; text-align: center; margin-top: 1.5rem; color: #64748b; text-decoration: none; font-size: 0.88rem; transition: color 0.3s; }
+        .back-link:hover { color: #818cf8; }
+
+        @media (max-width: 600px) {
+            .profile-field { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .edit-form.active { flex-direction: column; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-content">
+        <a href="/" class="navbar-brand">
+            <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+            <span class="brand-text">ĐKHP Online</span>
+        </a>
+        <div class="navbar-links">
+            <a href="/" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="main-content">
+    <div class="profile-header">
+        <div class="profile-avatar"><i class="fas fa-user"></i></div>
+        <h1 th:text="${student.username}">Username</h1>
+        <p>Quản lý thông tin cá nhân của bạn</p>
+    </div>
+
+    <div class="alert alert-success" th:if="${success}">
+        <i class="fas fa-check-circle"></i> <span th:text="${success}">Thành công</span>
+    </div>
+    <div class="alert alert-danger" th:if="${error}">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Lỗi</span>
+    </div>
+
+    <div class="profile-card">
+        <!-- ID -->
+        <div class="profile-field">
+            <div class="field-info">
+                <div class="field-label"><i class="fas fa-id-badge"></i> Mã sinh viên</div>
+                <div class="field-value" th:text="${student.studentId}">1</div>
+            </div>
+        </div>
+
+        <!-- Username -->
+        <div class="profile-field" id="field-username">
+            <div class="display-group" id="display-username">
+                <div class="field-info">
+                    <div class="field-label"><i class="fas fa-user"></i> Tên đăng nhập</div>
+                    <div class="field-value" th:text="${student.username}">username</div>
+                </div>
+                <button class="btn-field-edit" onclick="startEdit('username')">
+                    <i class="fas fa-pen"></i> Sửa
+                </button>
+            </div>
+            <form class="edit-form" id="edit-username" th:action="@{/profile/update}" method="post">
+                <input type="hidden" name="field" value="username">
+                <input type="text" name="value" th:value="${student.username}" placeholder="Nhập tên đăng nhập mới" required>
+                <button type="submit" class="btn-save"><i class="fas fa-check"></i> Lưu</button>
+                <button type="button" class="btn-cancel-edit" onclick="cancelEdit('username')">Hủy</button>
+            </form>
+        </div>
+
+        <!-- Email -->
+        <div class="profile-field" id="field-email">
+            <div class="display-group" id="display-email">
+                <div class="field-info">
+                    <div class="field-label"><i class="fas fa-envelope"></i> Email</div>
+                    <div class="field-value" th:text="${student.email}">email@example.com</div>
+                </div>
+                <button class="btn-field-edit" onclick="startEdit('email')">
+                    <i class="fas fa-pen"></i> Sửa
+                </button>
+            </div>
+            <form class="edit-form" id="edit-email" th:action="@{/profile/update}" method="post">
+                <input type="hidden" name="field" value="email">
+                <input type="email" name="value" th:value="${student.email}" placeholder="Nhập email mới" required>
+                <button type="submit" class="btn-save"><i class="fas fa-check"></i> Lưu</button>
+                <button type="button" class="btn-cancel-edit" onclick="cancelEdit('email')">Hủy</button>
+            </form>
+        </div>
+
+        <!-- Password -->
+        <div class="profile-field" id="field-password">
+            <div class="display-group" id="display-password">
+                <div class="field-info">
+                    <div class="field-label"><i class="fas fa-lock"></i> Mật khẩu</div>
+                    <div class="field-value field-value-password">••••••••</div>
+                </div>
+                <button class="btn-field-edit" onclick="startEdit('password')">
+                    <i class="fas fa-pen"></i> Đổi
+                </button>
+            </div>
+            <form class="edit-form" id="edit-password" th:action="@{/profile/update}" method="post">
+                <input type="hidden" name="field" value="password">
+                <input type="password" name="value" placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)" minlength="6" required>
+                <button type="submit" class="btn-save"><i class="fas fa-check"></i> Lưu</button>
+                <button type="button" class="btn-cancel-edit" onclick="cancelEdit('password')">Hủy</button>
+            </form>
+        </div>
+
+        <!-- Roles -->
+        <div class="profile-field">
+            <div class="field-info">
+                <div class="field-label"><i class="fas fa-shield-alt"></i> Vai trò</div>
+                <div class="role-badges">
+                    <span th:each="role : ${student.roles}"
+                          th:class="${role.name == 'ADMIN'} ? 'role-badge role-admin' : 'role-badge role-student'"
+                          th:text="${role.name}">ROLE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Về trang chủ</a>
+</main>
+
+<script>
+    function startEdit(field) {
+        document.getElementById('display-' + field).classList.add('hidden');
+        document.getElementById('edit-' + field).classList.add('active');
+        const input = document.querySelector('#edit-' + field + ' input[name="value"]');
+        if (input) input.focus();
+    }
+
+    function cancelEdit(field) {
+        document.getElementById('display-' + field).classList.remove('hidden');
+        document.getElementById('edit-' + field).classList.remove('active');
+    }
+</script>
+
+</body>
+</html>
