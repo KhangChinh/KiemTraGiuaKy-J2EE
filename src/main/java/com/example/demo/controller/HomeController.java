@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Course;
 import com.example.demo.model.CustomUserDetails;
+import com.example.demo.service.CategoryService;
 import com.example.demo.service.CourseService;
 import com.example.demo.service.EnrollmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,20 +25,22 @@ public class HomeController {
     @Autowired
     private EnrollmentService enrollmentService;
 
+    @Autowired
+    private CategoryService categoryService;
+
     @GetMapping({"/", "/home"})
     public String home(@RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "keyword", required = false) String keyword,
+                       @RequestParam(value = "categoryId", required = false) Integer categoryId,
                        @AuthenticationPrincipal CustomUserDetails userDetails,
                        Model model) {
         int pageSize = 5;
-        Page<Course> coursePage;
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            coursePage = courseService.searchCoursesPage(keyword.trim(), page, pageSize);
-            model.addAttribute("keyword", keyword.trim());
-        } else {
-            coursePage = courseService.getCoursesPage(page, pageSize);
-        }
+        // Xử lý keyword
+        String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+
+        // Sử dụng method mới hỗ trợ cả keyword và categoryId
+        Page<Course> coursePage = courseService.searchCoursesPage(trimmedKeyword, categoryId, page, pageSize);
 
         // Lấy danh sách courseId đã đăng ký (nếu đã đăng nhập & là STUDENT)
         Set<Long> enrolledCourseIds = new HashSet<>();
@@ -50,6 +53,9 @@ public class HomeController {
         model.addAttribute("totalPages", coursePage.getTotalPages());
         model.addAttribute("totalItems", coursePage.getTotalElements());
         model.addAttribute("enrolledCourseIds", enrolledCourseIds);
+        model.addAttribute("keyword", trimmedKeyword);
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("categories", categoryService.getAllCategories());
 
         return "home";
     }

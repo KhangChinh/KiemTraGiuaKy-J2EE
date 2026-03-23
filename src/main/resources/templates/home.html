@@ -19,8 +19,11 @@
         .navbar-brand .brand-text { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
         /* Search */
-        .search-form { display: flex; flex: 1; max-width: 400px; }
-        .search-form input { flex: 1; padding: 9px 14px; background: rgba(15,15,35,0.8); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px 0 0 10px; color: #e2e8f0; font-size: 0.88rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.3s; }
+        .search-form { display: flex; flex: 1; max-width: 540px; gap: 0; }
+        .search-form select { padding: 9px 12px; background: rgba(15,15,35,0.8); border: 1px solid rgba(99,102,241,0.2); border-right: none; border-radius: 10px 0 0 10px; color: #e2e8f0; font-size: 0.85rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.3s; cursor: pointer; min-width: 140px; appearance: auto; }
+        .search-form select:focus { border-color: #6366f1; }
+        .search-form select option { background: #1e1e3c; color: #e2e8f0; }
+        .search-form input { flex: 1; padding: 9px 14px; background: rgba(15,15,35,0.8); border: 1px solid rgba(99,102,241,0.2); border-right: none; border-radius: 0; color: #e2e8f0; font-size: 0.88rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.3s; }
         .search-form input:focus { border-color: #6366f1; }
         .search-form input::placeholder { color: #475569; }
         .search-form button { padding: 9px 16px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; border-radius: 0 10px 10px 0; color: white; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; }
@@ -141,6 +144,11 @@
 
         <!-- Search bar -->
         <form class="search-form" th:action="@{/home}" method="get">
+            <select name="categoryId">
+                <option value="">Tất cả danh mục</option>
+                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"
+                        th:selected="${categoryId != null && categoryId == cat.id}">Category</option>
+            </select>
             <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm học phần...">
             <button type="submit"><i class="fas fa-search"></i></button>
         </form>
@@ -201,8 +209,11 @@
 </div>
 
 <!-- Search tag -->
-<div class="search-tag" th:if="${keyword != null && !keyword.isEmpty()}">
-    <i class="fas fa-search"></i> Kết quả tìm kiếm cho: <strong th:text="${keyword}">keyword</strong>
+<div class="search-tag" th:if="${keyword != null || categoryId != null}">
+    <i class="fas fa-filter"></i>
+    <span th:if="${keyword != null}">Từ khóa: <strong th:text="${keyword}">keyword</strong></span>
+    <span th:if="${keyword != null && categoryId != null}"> | </span>
+    <span th:if="${categoryId != null}">Danh mục: <strong th:each="cat : ${categories}" th:if="${cat.id == categoryId}" th:text="${cat.name}">category</strong></span>
     <span th:text="'(' + ${totalItems} + ' kết quả)'"></span>
     <a href="/home"><i class="fas fa-times"></i> Xóa bộ lọc</a>
 </div>
@@ -275,16 +286,16 @@
     <!-- Pagination -->
     <div class="pagination-container" th:if="${totalPages > 1}">
         <a class="page-btn" th:classappend="${currentPage == 0} ? 'disabled'"
-           th:href="@{/home(page=${currentPage - 1}, keyword=${keyword})}">
+           th:href="@{/home(page=${currentPage - 1}, keyword=${keyword}, categoryId=${categoryId})}">
             <i class="fas fa-chevron-left"></i>
         </a>
         <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
             <a class="page-btn" th:classappend="${i == currentPage} ? 'active'"
-               th:href="@{/home(page=${i}, keyword=${keyword})}"
+               th:href="@{/home(page=${i}, keyword=${keyword}, categoryId=${categoryId})}"
                th:text="${i + 1}">1</a>
         </th:block>
         <a class="page-btn" th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
-           th:href="@{/home(page=${currentPage + 1}, keyword=${keyword})}">
+           th:href="@{/home(page=${currentPage + 1}, keyword=${keyword}, categoryId=${categoryId})}">
             <i class="fas fa-chevron-right"></i>
         </a>
     </div>

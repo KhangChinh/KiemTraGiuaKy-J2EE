@@ -27,6 +27,22 @@ public class CourseService {
         return courseRepository.findByNameContainingIgnoreCase(keyword, pageable);
     }
 
+    public Page<Course> searchCoursesPage(String keyword, Integer categoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        boolean hasCategory = categoryId != null;
+
+        if (hasKeyword && hasCategory) {
+            return courseRepository.findByNameContainingIgnoreCaseAndCategoryId(keyword.trim(), categoryId, pageable);
+        } else if (hasKeyword) {
+            return courseRepository.findByNameContainingIgnoreCase(keyword.trim(), pageable);
+        } else if (hasCategory) {
+            return courseRepository.findByCategoryId(categoryId, pageable);
+        } else {
+            return courseRepository.findAll(pageable);
+        }
+    }
+
     public List<Course> getAllCourses() {
         return courseRepository.findAll();
     }
