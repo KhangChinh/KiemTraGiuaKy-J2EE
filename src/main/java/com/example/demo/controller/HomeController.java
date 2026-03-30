@@ -34,7 +34,7 @@ public class HomeController {
                        @RequestParam(value = "categoryId", required = false) Integer categoryId,
                        @AuthenticationPrincipal CustomUserDetails userDetails,
                        Model model) {
-        int pageSize = 5;
+        int pageSize = 6;
 
         // Xử lý keyword
         String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;

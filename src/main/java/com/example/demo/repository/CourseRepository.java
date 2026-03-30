@@ -15,4 +15,5 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Page<Course> findByCategoryId(Integer categoryId, Pageable pageable);
     Page<Course> findByNameContainingIgnoreCaseAndCategoryId(String name, Integer categoryId, Pageable pageable);
     long countByCategoryId(Integer categoryId);
+    List<Course> findByLecturer(String lecturer);
 }

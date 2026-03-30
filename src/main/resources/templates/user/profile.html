@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin cá nhân - ĐKHP Online</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f0f23; color: #e2e8f0; min-height: 100vh; }
+
+        /* NAVBAR */
+        .navbar { background: rgba(15,15,35,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(99,102,241,0.2); padding: 0 2rem; position: sticky; top: 0; z-index: 1000; }
+        .navbar-content { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 70px; }
+        .navbar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .navbar-brand .logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; }
+        .navbar-brand .brand-text { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .navbar-links { display: flex; align-items: center; gap: 8px; }
+        .nav-link { padding: 8px 16px; border-radius: 10px; text-decoration: none; color: #94a3b8; font-weight: 500; font-size: 0.9rem; transition: all 0.3s ease; }
+        .nav-link:hover { color: #e2e8f0; background: rgba(99,102,241,0.1); }
+        .logout-form { display: inline; }
+        .logout-form button { padding: 7px 16px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; border-radius: 10px; font-weight: 500; font-size: 0.85rem; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s ease; }
+        .logout-form button:hover { background: rgba(239,68,68,0.25); }
+
+        /* LAYOUT */
+        .profile-layout { max-width: 1100px; margin: 0 auto; padding: 2rem; display: flex; gap: 2rem; }
+
+        /* LEFT: avatar + sidebar tabs */
+        .profile-sidebar { width: 280px; flex-shrink: 0; }
+        .sidebar-avatar { text-align: center; margin-bottom: 1.5rem; }
+        .profile-avatar-wrapper { position: relative; display: inline-block; margin-bottom: 1rem; }
+        .profile-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(99,102,241,0.4); box-shadow: 0 8px 32px rgba(99,102,241,0.25); }
+        .profile-avatar-default { width: 120px; height: 120px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white; box-shadow: 0 8px 32px rgba(99,102,241,0.25); }
+        .avatar-upload-overlay { position: absolute; bottom: 4px; right: 4px; width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid #0f0f23; transition: transform 0.3s; }
+        .avatar-upload-overlay:hover { transform: scale(1.1); }
+        .avatar-upload-overlay i { color: white; font-size: 0.8rem; }
+        .avatar-upload-input { display: none; }
+        .sidebar-name { font-size: 1.3rem; font-weight: 700; color: #e2e8f0; margin-bottom: 0.3rem; }
+        .sidebar-email { font-size: 0.85rem; color: #64748b; margin-bottom: 0.8rem; }
+        .role-badges { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+        .role-badge { padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .role-admin { background: rgba(234,179,8,0.2); color: #fde047; border: 1px solid rgba(234,179,8,0.3); }
+        .role-student { background: rgba(34,197,94,0.2); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+        .role-lecturer { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+
+        /* Sidebar nav */
+        .sidebar-nav { background: rgba(30,30,60,0.6); border: 1px solid rgba(99,102,241,0.15); border-radius: 16px; overflow: hidden; }
+        .sidebar-nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: #94a3b8; font-weight: 500; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; border-left: 3px solid transparent; }
+        .sidebar-nav-item:hover { background: rgba(99,102,241,0.05); color: #e2e8f0; }
+        .sidebar-nav-item.active { background: rgba(99,102,241,0.1); color: #818cf8; border-left-color: #6366f1; font-weight: 600; }
+        .sidebar-nav-item i { width: 20px; text-align: center; font-size: 0.9rem; }
+        .sidebar-nav-item + .sidebar-nav-item { border-top: 1px solid rgba(99,102,241,0.08); }
+
+        /* RIGHT: content panels */
+        .profile-content { flex: 1; min-width: 0; }
+
+        /* Alerts */
+        .alert { padding: 12px 18px; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.88rem; font-weight: 500; animation: fadeIn 0.4s ease; }
+        .alert-success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
+        .alert-danger { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Panels */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+        .panel-title { font-size: 1.3rem; font-weight: 700; color: #e2e8f0; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+        .panel-title i { color: #818cf8; }
+
+        /* Profile card */
+        .profile-card { background: rgba(30,30,60,0.6); border: 1px solid rgba(99,102,241,0.15); border-radius: 16px; overflow: hidden; }
+        .profile-field { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid rgba(99,102,241,0.08); transition: background 0.2s; }
+        .profile-field:last-child { border-bottom: none; }
+        .profile-field:hover { background: rgba(99,102,241,0.03); }
+        .field-info { flex: 1; }
+        .field-label { font-size: 0.78rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .field-label i { color: #818cf8; font-size: 0.8rem; }
+        .field-value { font-size: 1rem; font-weight: 500; color: #e2e8f0; }
+
+        .btn-field-edit { padding: 6px 14px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); color: #818cf8; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 5px; }
+        .btn-field-edit:hover { background: rgba(99,102,241,0.25); }
+
+        .edit-form { display: none; flex: 1; }
+        .edit-form.active { display: flex; align-items: center; gap: 8px; }
+        .edit-form input { flex: 1; padding: 10px 14px; background: rgba(15,15,35,0.8); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; color: #e2e8f0; font-size: 0.95rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.3s; }
+        .edit-form input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+        .btn-save { padding: 8px 16px; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; }
+        .btn-save:hover { box-shadow: 0 4px 15px rgba(34,197,94,0.35); }
+        .btn-cancel-edit { padding: 8px 14px; background: rgba(100,116,139,0.15); border: 1px solid rgba(100,116,139,0.3); color: #94a3b8; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; }
+        .btn-cancel-edit:hover { background: rgba(100,116,139,0.25); color: #e2e8f0; }
+
+        .display-group { display: flex; align-items: center; gap: 12px; flex: 1; }
+        .display-group.hidden { display: none; }
+
+        /* Courses tab */
+        .course-list { display: flex; flex-direction: column; gap: 12px; }
+        .course-item { background: rgba(30,30,60,0.6); border: 1px solid rgba(99,102,241,0.15); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; transition: all 0.3s; }
+        .course-item:hover { border-color: rgba(99,102,241,0.35); transform: translateX(4px); }
+        .course-item-img { width: 60px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+        .course-item-img-default { width: 60px; height: 42px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; flex-shrink: 0; }
+        .course-item-info { flex: 1; min-width: 0; }
+        .course-item-name { font-weight: 600; font-size: 0.95rem; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .course-item-meta { font-size: 0.8rem; color: #64748b; margin-top: 3px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .course-item-meta span { display: flex; align-items: center; gap: 4px; }
+        .course-item-meta i { font-size: 0.75rem; color: #818cf8; }
+        .course-item-badge { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+        .badge-credits { background: rgba(99,102,241,0.15); color: #818cf8; }
+        .badge-date { background: rgba(34,197,94,0.15); color: #86efac; }
+
+        .empty-courses { text-align: center; padding: 3rem 2rem; color: #64748b; }
+        .empty-courses i { font-size: 2.5rem; color: #334155; margin-bottom: 0.8rem; display: block; }
+
+        /* Security tab */
+        .security-card { background: rgba(30,30,60,0.6); border: 1px solid rgba(99,102,241,0.15); border-radius: 16px; padding: 2rem; }
+        .form-group { margin-bottom: 1.3rem; }
+        .form-group label { display: block; margin-bottom: 6px; color: #94a3b8; font-weight: 500; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; }
+        .form-group label i { color: #818cf8; font-size: 0.85rem; }
+        .password-wrapper { position: relative; }
+        .password-wrapper input { width: 100%; padding: 12px 44px 12px 14px; background: rgba(15,15,35,0.8); border: 1px solid rgba(99,102,241,0.2); border-radius: 12px; color: #e2e8f0; font-size: 0.95rem; font-family: 'Inter', sans-serif; transition: all 0.3s ease; outline: none; }
+        .password-wrapper input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+        .toggle-password { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; font-size: 0.9rem; padding: 4px; transition: color 0.3s; }
+        .toggle-password:hover { color: #818cf8; }
+        .btn-change-password { width: 100%; padding: 13px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.3s; margin-top: 0.5rem; }
+        .btn-change-password:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.35); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .profile-layout { flex-direction: column; padding: 1rem; }
+            .profile-sidebar { width: 100%; }
+            .sidebar-nav { display: flex; overflow-x: auto; border-radius: 12px; }
+            .sidebar-nav-item { border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; padding: 12px 16px; }
+            .sidebar-nav-item.active { border-bottom-color: #6366f1; border-left-color: transparent; }
+            .sidebar-nav-item + .sidebar-nav-item { border-top: none; border-left: 1px solid rgba(99,102,241,0.08); }
+            .profile-field { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .edit-form.active { flex-direction: column; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-content">
+        <a href="/" class="navbar-brand">
+            <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+            <span class="brand-text">ĐKHP Online</span>
+        </a>
+        <div class="navbar-links">
+            <a href="/" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="profile-layout">
+    <!-- LEFT SIDEBAR -->
+    <aside class="profile-sidebar">
+        <div class="sidebar-avatar">
+            <form th:action="@{/profile/upload-image}" method="post" enctype="multipart/form-data" id="avatarForm">
+                <div class="profile-avatar-wrapper">
+                    <img th:if="${student.image != null && !student.image.isEmpty()}"
+                         th:src="${student.image}" class="profile-avatar" alt="Avatar">
+                    <div th:if="${student.image == null || student.image.isEmpty()}" class="profile-avatar-default">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <label class="avatar-upload-overlay" for="avatarInput" title="Đổi ảnh đại diện">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" name="imageFile" id="avatarInput" class="avatar-upload-input"
+                           accept="image/*" onchange="document.getElementById('avatarForm').submit();">
+                </div>
+            </form>
+            <div class="sidebar-name" th:text="${student.username}">Username</div>
+            <div class="sidebar-email" th:text="${student.email}">email@example.com</div>
+            <div class="role-badges">
+                <span th:each="role : ${student.roles}"
+                      th:class="'role-badge ' + (${role.name == 'ADMIN'} ? 'role-admin' : (${role.name == 'LECTURER'} ? 'role-lecturer' : 'role-student'))"
+                      th:text="${role.name}">ROLE</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-nav-item active" onclick="switchTab('info')">
+                <i class="fas fa-user-circle"></i> Thông tin người dùng
+            </div>
+            <div class="sidebar-nav-item" th:if="${!isAdmin}" onclick="switchTab('courses')">
+                <i class="fas fa-book-reader"></i> Học phần của tôi
+            </div>
+            <div class="sidebar-nav-item" onclick="switchTab('security')">
+                <i class="fas fa-shield-alt"></i> Bảo mật
+            </div>
+        </nav>
+    </aside>
+
+    <!-- RIGHT CONTENT -->
+    <section class="profile-content">
+        <!-- Alerts -->
+        <div class="alert alert-success" th:if="${success}">
+            <i class="fas fa-check-circle"></i> <span th:text="${success}">Thành công</span>
+        </div>
+        <div class="alert alert-danger" th:if="${error}">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}">Lỗi</span>
+        </div>
+
+        <!-- TAB 1: User Info -->
+        <div class="tab-panel active" id="tab-info">
+            <h2 class="panel-title"><i class="fas fa-user-circle"></i> Thông tin người dùng</h2>
+            <div class="profile-card">
+                <!-- ID -->
+                <div class="profile-field">
+                    <div class="field-info">
+                        <div class="field-label">
+                            <i class="fas fa-id-badge"></i>
+                            <span th:text="${isAdmin} ? 'Mã tài khoản' : (${isLecturer} ? 'Mã giảng viên' : 'Mã sinh viên')">Mã</span>
+                        </div>
+                        <div class="field-value" th:text="${student.studentId}">1</div>
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div class="profile-field" id="field-username">
+                    <div class="display-group" id="display-username">
+                        <div class="field-info">
+                            <div class="field-label"><i class="fas fa-user"></i> Tên đăng nhập</div>
+                            <div class="field-value" th:text="${student.username}">username</div>
+                        </div>
+                        <button class="btn-field-edit" onclick="startEdit('username')">
+                            <i class="fas fa-pen"></i> Sửa
+                        </button>
+                    </div>
+                    <form class="edit-form" id="edit-username" th:action="@{/profile/update}" method="post">
+                        <input type="hidden" name="field" value="username">
+                        <input type="text" name="value" th:value="${student.username}" placeholder="Nhập tên đăng nhập mới" required>
+                        <button type="submit" class="btn-save"><i class="fas fa-check"></i> Lưu</button>
+                        <button type="button" class="btn-cancel-edit" onclick="cancelEdit('username')">Hủy</button>
+                    </form>
+                </div>
+
+                <!-- Email -->
+                <div class="profile-field" id="field-email">
+                    <div class="display-group" id="display-email">
+                        <div class="field-info">
+                            <div class="field-label"><i class="fas fa-envelope"></i> Email</div>
+                            <div class="field-value" th:text="${student.email}">email@example.com</div>
+                        </div>
+                        <button class="btn-field-edit" onclick="startEdit('email')">
+                            <i class="fas fa-pen"></i> Sửa
+                        </button>
+                    </div>
+                    <form class="edit-form" id="edit-email" th:action="@{/profile/update}" method="post">
+                        <input type="hidden" name="field" value="email">
+                        <input type="email" name="value" th:value="${student.email}" placeholder="Nhập email mới" required>
+                        <button type="submit" class="btn-save"><i class="fas fa-check"></i> Lưu</button>
+                        <button type="button" class="btn-cancel-edit" onclick="cancelEdit('email')">Hủy</button>
+                    </form>
+                </div>
+
+                <!-- Roles -->
+                <div class="profile-field">
+                    <div class="field-info">
+                        <div class="field-label"><i class="fas fa-shield-alt"></i> Vai trò</div>
+                        <div class="role-badges" style="justify-content:flex-start;">
+                            <span th:each="role : ${student.roles}"
+                                  th:class="'role-badge ' + (${role.name == 'ADMIN'} ? 'role-admin' : (${role.name == 'LECTURER'} ? 'role-lecturer' : 'role-student'))"
+                                  th:text="${role.name}">ROLE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: My Courses (hidden for admin) -->
+        <div class="tab-panel" id="tab-courses">
+            <!-- STUDENT view -->
+            <div th:if="${isStudent}">
+                <h2 class="panel-title"><i class="fas fa-book-reader"></i> Học phần đã đăng ký</h2>
+                <div class="course-list" th:if="${enrollments != null && !enrollments.isEmpty()}">
+                    <div class="course-item" th:each="enrollment : ${enrollments}">
+                        <img th:if="${enrollment.course.image != null && !enrollment.course.image.isEmpty()}"
+                             th:src="${enrollment.course.image}" class="course-item-img" alt="Course">
+                        <div th:if="${enrollment.course.image == null || enrollment.course.image.isEmpty()}"
+                             class="course-item-img-default"><i class="fas fa-book"></i></div>
+                        <div class="course-item-info">
+                            <div class="course-item-name" th:text="${enrollment.course.name}">Tên học phần</div>
+                            <div class="course-item-meta">
+                                <span><i class="fas fa-chalkboard-teacher"></i> <span th:text="${enrollment.course.lecturer != null} ? ${enrollment.course.lecturer} : 'Chưa phân công'">GV</span></span>
+                                <span th:if="${enrollment.course.category != null}"><i class="fas fa-folder"></i> <span th:text="${enrollment.course.category.name}">Danh mục</span></span>
+                            </div>
+                        </div>
+                        <span class="course-item-badge badge-credits" th:text="${enrollment.course.credits} + ' TC'">3 TC</span>
+                        <span class="course-item-badge badge-date" th:text="${enrollment.enrollDate}">2026-01-01</span>
+                    </div>
+                </div>
+                <div class="empty-courses" th:if="${enrollments == null || enrollments.isEmpty()}">
+                    <i class="fas fa-inbox"></i>
+                    <p>Bạn chưa đăng ký học phần nào.</p>
+                </div>
+            </div>
+
+            <!-- LECTURER view -->
+            <div th:if="${isLecturer}">
+                <h2 class="panel-title"><i class="fas fa-chalkboard-teacher"></i> Học phần đang giảng dạy</h2>
+                <div class="course-list" th:if="${taughtCourses != null && !taughtCourses.isEmpty()}">
+                    <div class="course-item" th:each="course : ${taughtCourses}">
+                        <img th:if="${course.image != null && !course.image.isEmpty()}"
+                             th:src="${course.image}" class="course-item-img" alt="Course">
+                        <div th:if="${course.image == null || course.image.isEmpty()}"
+                             class="course-item-img-default"><i class="fas fa-book"></i></div>
+                        <div class="course-item-info">
+                            <div class="course-item-name" th:text="${course.name}">Tên học phần</div>
+                            <div class="course-item-meta">
+                                <span th:if="${course.category != null}"><i class="fas fa-folder"></i> <span th:text="${course.category.name}">Danh mục</span></span>
+                            </div>
+                        </div>
+                        <span class="course-item-badge badge-credits" th:text="${course.credits} + ' TC'">3 TC</span>
+                    </div>
+                </div>
+                <div class="empty-courses" th:if="${taughtCourses == null || taughtCourses.isEmpty()}">
+                    <i class="fas fa-chalkboard"></i>
+                    <p>Bạn chưa được phân công giảng dạy học phần nào.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Security -->
+        <div class="tab-panel" id="tab-security">
+            <h2 class="panel-title"><i class="fas fa-shield-alt"></i> Đổi mật khẩu</h2>
+            <div class="security-card">
+                <form th:action="@{/profile/change-password}" method="post">
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Mật khẩu cũ</label>
+                        <div class="password-wrapper">
+                            <input type="password" name="oldPassword" id="oldPassword" placeholder="Nhập mật khẩu hiện tại" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('oldPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-key"></i> Mật khẩu mới</label>
+                        <div class="password-wrapper">
+                            <input type="password" name="newPassword" id="newPassword" placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)" minlength="6" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('newPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-check-double"></i> Xác nhận mật khẩu mới</label>
+                        <div class="password-wrapper">
+                            <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Nhập lại mật khẩu mới" minlength="6" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-change-password">
+                        <i class="fas fa-key"></i> Đổi mật khẩu
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    function switchTab(tabId) {
+        // Deactivate all
+        document.querySelectorAll('.sidebar-nav-item').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+
+        // Activate selected
+        document.getElementById('tab-' + tabId).classList.add('active');
+        // Find and activate the correct nav item
+        document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+            if (item.getAttribute('onclick') === "switchTab('" + tabId + "')") {
+                item.classList.add('active');
+            }
+        });
+    }
+
+    function startEdit(field) {
+        document.getElementById('display-' + field).classList.add('hidden');
+        document.getElementById('edit-' + field).classList.add('active');
+        const input = document.querySelector('#edit-' + field + ' input[name="value"]');
+        if (input) input.focus();
+    }
+
+    function cancelEdit(field) {
+        document.getElementById('display-' + field).classList.remove('hidden');
+        document.getElementById('edit-' + field).classList.remove('active');
+    }
+
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = input.parentElement.querySelector('.toggle-password i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // Auto-switch to the correct tab if redirected with activeTab
+    (function() {
+        const activeTab = '[[${activeTab}]]';
+        if (activeTab && activeTab !== '' && activeTab !== '[[${activeTab}]]') {
+            switchTab(activeTab);
+        }
+    })();
+</script>
+
+</body>
+</html>

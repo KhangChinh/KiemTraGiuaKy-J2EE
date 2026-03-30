@@ -60,7 +60,7 @@ public class EnrollmentController {
         List<Enrollment> enrollments = enrollmentService.getEnrollmentsByStudentId(student.getStudentId());
         model.addAttribute("enrollments", enrollments);
         model.addAttribute("student", student);
-        return "enroll/my-courses";
+        return "user/my-courses";
     }
 
     // Hủy đăng ký

@@ -2,7 +2,11 @@ package com.example.demo.controller;
 
 import com.example.demo.model.CustomUserDetails;
 import com.example.demo.model.Student;
+import com.example.demo.model.Enrollment;
+import com.example.demo.model.Course;
 import com.example.demo.repository.StudentRepository;
+import com.example.demo.service.EnrollmentService;
+import com.example.demo.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -28,6 +33,12 @@ public class ProfileController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EnrollmentService enrollmentService;
+
+    @Autowired
+    private CourseService courseService;
+
     private static final String UPLOAD_DIR = "src/main/resources/static/images/";
 
     @GetMapping
@@ -35,7 +46,29 @@ public class ProfileController {
         Student student = studentRepository.findById(userDetails.getStudent().getStudentId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
         model.addAttribute("student", student);
-        return "profile";
+
+        // Determine role
+        boolean isStudent = student.getRoles().stream().anyMatch(r -> r.getName().equals("STUDENT"));
+        boolean isLecturer = student.getRoles().stream().anyMatch(r -> r.getName().equals("LECTURER"));
+        boolean isAdmin = student.getRoles().stream().anyMatch(r -> r.getName().equals("ADMIN"));
+
+        model.addAttribute("isStudent", isStudent);
+        model.addAttribute("isLecturer", isLecturer);
+        model.addAttribute("isAdmin", isAdmin);
+
+        // Enrolled courses for students
+        if (isStudent) {
+            List<Enrollment> enrollments = enrollmentService.getEnrollmentsByStudentId(student.getStudentId());
+            model.addAttribute("enrollments", enrollments);
+        }
+
+        // Courses taught by lecturer
+        if (isLecturer) {
+            List<Course> taughtCourses = courseService.getCoursesByLecturer(student.getUsername());
+            model.addAttribute("taughtCourses", taughtCourses);
+        }
+
+        return "user/profile";
     }
 
     @PostMapping("/update")
@@ -69,26 +102,52 @@ public class ProfileController {
                 }
                 student.setEmail(value.trim());
                 break;
-            case "password":
-                if (value == null || value.trim().length() < 6) {
-                    redirectAttributes.addFlashAttribute("error", "Mật khẩu phải có ít nhất 6 ký tự!");
-                    return "redirect:/profile";
-                }
-                student.setPassword(passwordEncoder.encode(value.trim()));
-                break;
             default:
                 redirectAttributes.addFlashAttribute("error", "Trường không hợp lệ!");
                 return "redirect:/profile";
         }
 
         studentRepository.save(student);
-
-        // Cập nhật lại thông tin trong session
         userDetails.getStudent().setUsername(student.getUsername());
         userDetails.getStudent().setEmail(student.getEmail());
-        userDetails.getStudent().setPassword(student.getPassword());
 
         redirectAttributes.addFlashAttribute("success", "Cập nhật thành công!");
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                 @RequestParam("oldPassword") String oldPassword,
+                                 @RequestParam("newPassword") String newPassword,
+                                 @RequestParam("confirmPassword") String confirmPassword,
+                                 RedirectAttributes redirectAttributes) {
+        Student student = studentRepository.findById(userDetails.getStudent().getStudentId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+        if (!passwordEncoder.matches(oldPassword, student.getPassword())) {
+            redirectAttributes.addFlashAttribute("error", "Mật khẩu cũ không chính xác!");
+            redirectAttributes.addFlashAttribute("activeTab", "security");
+            return "redirect:/profile";
+        }
+
+        if (newPassword == null || newPassword.trim().length() < 6) {
+            redirectAttributes.addFlashAttribute("error", "Mật khẩu mới phải có ít nhất 6 ký tự!");
+            redirectAttributes.addFlashAttribute("activeTab", "security");
+            return "redirect:/profile";
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("error", "Mật khẩu xác nhận không khớp!");
+            redirectAttributes.addFlashAttribute("activeTab", "security");
+            return "redirect:/profile";
+        }
+
+        student.setPassword(passwordEncoder.encode(newPassword.trim()));
+        studentRepository.save(student);
+        userDetails.getStudent().setPassword(student.getPassword());
+
+        redirectAttributes.addFlashAttribute("success", "Đổi mật khẩu thành công!");
+        redirectAttributes.addFlashAttribute("activeTab", "security");
         return "redirect:/profile";
     }
 

@@ -11,8 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.HashSet;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Controller
@@ -39,9 +38,17 @@ public class AdminUserController {
                           @RequestParam("email") String email,
                           @RequestParam("password") String password,
                           @RequestParam("confirmPassword") String confirmPassword,
-                          @RequestParam("roleIds") List<Long> roleIds,
+                          @RequestParam(value = "roleId", required = false) Long roleId,
                           RedirectAttributes redirectAttributes,
                           Model model) {
+
+        if (roleId == null) {
+            model.addAttribute("error", "Vui lòng chọn một vai trò!");
+            model.addAttribute("roles", roleRepository.findAll());
+            model.addAttribute("username", username);
+            model.addAttribute("email", email);
+            return "admin/users/add";
+        }
 
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Mật khẩu xác nhận không khớp!");
@@ -67,16 +74,20 @@ public class AdminUserController {
             return "admin/users/add";
         }
 
+        Optional<Role> roleOpt = roleRepository.findById(roleId);
+        if (roleOpt.isEmpty()) {
+            model.addAttribute("error", "Vai trò không hợp lệ!");
+            model.addAttribute("roles", roleRepository.findAll());
+            model.addAttribute("username", username);
+            model.addAttribute("email", email);
+            return "admin/users/add";
+        }
+
         Student student = new Student();
         student.setUsername(username);
         student.setEmail(email);
         student.setPassword(passwordEncoder.encode(password));
-
-        Set<Role> roles = new HashSet<>();
-        for (Long roleId : roleIds) {
-            roleRepository.findById(roleId).ifPresent(roles::add);
-        }
-        student.setRoles(roles);
+        student.setRoles(Set.of(roleOpt.get()));
 
         studentRepository.save(student);
         redirectAttributes.addFlashAttribute("success", "Tạo tài khoản \"" + username + "\" thành công!");

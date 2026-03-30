@@ -62,4 +62,8 @@ public class CourseService {
     public void deleteCourse(Long id) {
         courseRepository.deleteById(id);
     }
+
+    public List<Course> getCoursesByLecturer(String lecturerUsername) {
+        return courseRepository.findByLecturer(lecturerUsername);
+    }
 }

@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS enrollment (
 -- =============================================
 
 -- Roles
-INSERT INTO role (name) VALUES ('ADMIN'), ('STUDENT'), ('TEACHER');
+INSERT INTO role (name) VALUES ('ADMIN'), ('STUDENT'), ('LECTURER');
 
 -- Categories
 INSERT INTO category (name) VALUES 

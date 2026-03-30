@@ -57,11 +57,14 @@
         </a>
         <div class="navbar-links">
             <a href="/" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
-            <div class="user-info">
-                <div class="avatar"><i class="fas fa-user"></i></div>
+            <a href="/profile" class="user-info" style="text-decoration:none;">
+                <img th:if="${currentUser != null && currentUser.image != null && !currentUser.image.isEmpty()}"
+                     th:src="${currentUser.image}" alt="Avatar"
+                     style="width:34px;height:34px;border-radius:50%;object-fit:cover;">
+                <div class="avatar" th:if="${currentUser == null || currentUser.image == null || currentUser.image.isEmpty()}"><i class="fas fa-user"></i></div>
                 <span sec:authentication="name">Admin</span>
                 <span class="role-badge">Admin</span>
-            </div>
+            </a>
             <form th:action="@{/logout}" method="post" class="logout-form">
                 <button type="submit"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
             </form>

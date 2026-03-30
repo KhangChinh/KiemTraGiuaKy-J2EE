@@ -40,17 +40,28 @@ public class AdminCourseController {
 
     private static final String UPLOAD_DIR = "src/main/resources/static/images/";
 
-    // Danh sách courses (có tìm kiếm)
+    // Danh sách courses (có tìm kiếm + lọc danh mục)
     @GetMapping
     public String listCourses(@RequestParam(value = "keyword", required = false) String keyword,
+                              @RequestParam(value = "categoryId", required = false) Integer categoryId,
                               Model model) {
         List<Course> courses;
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            courses = courseService.searchCourses(keyword.trim());
-            model.addAttribute("keyword", keyword.trim());
+        String trimmedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+
+        if (trimmedKeyword != null || categoryId != null) {
+            // Use the page-based search but get all results (large page)
+            var page = courseService.searchCoursesPage(trimmedKeyword, categoryId, 0, 1000);
+            courses = page.getContent();
         } else {
             courses = courseService.getAllCourses();
         }
+
+        if (trimmedKeyword != null) {
+            model.addAttribute("keyword", trimmedKeyword);
+        }
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("categories", categoryService.getAllCategories());
+
         Map<Long, Long> enrollCountMap = new HashMap<>();
         for (Course c : courses) {
             enrollCountMap.put(c.getId(), enrollmentRepository.countByCourseId(c.getId()));
@@ -65,7 +76,7 @@ public class AdminCourseController {
     public String showAddForm(Model model) {
         model.addAttribute("course", new Course());
         model.addAttribute("categories", categoryService.getAllCategories());
-        model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
+        model.addAttribute("teachers", studentRepository.findByRoles_Name("LECTURER"));
         return "admin/courses/add";
     }
 
@@ -79,13 +90,13 @@ public class AdminCourseController {
         if (course.getName() == null || course.getName().trim().isEmpty()) {
             model.addAttribute("error", "Tên học phần không được để trống!");
             model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
+            model.addAttribute("teachers", studentRepository.findByRoles_Name("LECTURER"));
             return "admin/courses/add";
         }
         if (course.getCredits() == null || course.getCredits() < 1) {
             model.addAttribute("error", "Số tín chỉ phải từ 1 trở lên!");
             model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
+            model.addAttribute("teachers", studentRepository.findByRoles_Name("LECTURER"));
             return "admin/courses/add";
         }
 
@@ -104,7 +115,7 @@ public class AdminCourseController {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy học phần với ID: " + id));
         model.addAttribute("course", course);
         model.addAttribute("categories", categoryService.getAllCategories());
-        model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
+        model.addAttribute("teachers", studentRepository.findByRoles_Name("LECTURER"));
         return "admin/courses/edit";
     }
 
@@ -119,13 +130,13 @@ public class AdminCourseController {
         if (course.getName() == null || course.getName().trim().isEmpty()) {
             model.addAttribute("error", "Tên học phần không được để trống!");
             model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
+            model.addAttribute("teachers", studentRepository.findByRoles_Name("LECTURER"));
             return "admin/courses/edit";
         }
         if (course.getCredits() == null || course.getCredits() < 1) {
             model.addAttribute("error", "Số tín chỉ phải từ 1 trở lên!");
             model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("teachers", studentRepository.findByRoles_Name("TEACHER"));
+            model.addAttribute("teachers", studentRepository.findByRoles_Name("LECTURER"));
             return "admin/courses/edit";
         }
 

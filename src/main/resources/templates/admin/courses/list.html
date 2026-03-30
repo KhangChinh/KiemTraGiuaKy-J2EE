@@ -1,15 +1,22 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Học phần - ĐKHP Admin</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: #0f0f23;
@@ -80,7 +87,10 @@
             transition: all 0.3s ease;
         }
 
-        .nav-link:hover { color: #e2e8f0; background: rgba(234, 179, 8, 0.1); }
+        .nav-link:hover {
+            color: #e2e8f0;
+            background: rgba(234, 179, 8, 0.1);
+        }
 
         .user-info {
             display: flex;
@@ -120,7 +130,9 @@
             transition: all 0.3s ease;
         }
 
-        .logout-form button:hover { background: rgba(239, 68, 68, 0.25); }
+        .logout-form button:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
 
         .role-badge {
             padding: 2px 8px;
@@ -200,7 +212,17 @@
             color: #fca5a5;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* Table */
         .table-container {
@@ -234,9 +256,17 @@
             vertical-align: middle;
         }
 
-        tbody tr { transition: background 0.2s ease; }
-        tbody tr:hover { background: rgba(99, 102, 241, 0.05); }
-        tbody tr:last-child td { border-bottom: none; }
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
 
         .course-img {
             width: 80px;
@@ -250,7 +280,8 @@
             gap: 8px;
         }
 
-        .btn-edit, .btn-delete {
+        .btn-edit,
+        .btn-delete {
             padding: 6px 14px;
             border-radius: 8px;
             font-size: 0.8rem;
@@ -268,7 +299,9 @@
             color: #818cf8;
         }
 
-        .btn-edit:hover { background: rgba(99, 102, 241, 0.25); }
+        .btn-edit:hover {
+            background: rgba(99, 102, 241, 0.25);
+        }
 
         .btn-delete {
             background: rgba(239, 68, 68, 0.15);
@@ -276,7 +309,9 @@
             color: #fca5a5;
         }
 
-        .btn-delete:hover { background: rgba(239, 68, 68, 0.25); }
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
 
         .category-badge {
             background: rgba(192, 132, 252, 0.15);
@@ -298,132 +333,262 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .table-container { overflow-x: auto; }
-            table { min-width: 700px; }
-            .page-header { flex-direction: column; align-items: flex-start; }
+            .table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 700px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
 
         /* Search */
-        .search-row { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; }
-        .search-form { display: flex; flex: 1; max-width: 400px; }
-        .search-form input { flex: 1; padding: 9px 14px; background: rgba(15,15,35,0.8); border: 1px solid rgba(234,179,8,0.2); border-radius: 10px 0 0 10px; color: #e2e8f0; font-size: 0.88rem; font-family: 'Inter',sans-serif; outline: none; transition: border-color 0.3s; }
-        .search-form input:focus { border-color: #eab308; }
-        .search-form input::placeholder { color: #475569; }
-        .search-form button { padding: 9px 16px; background: linear-gradient(135deg, #eab308, #f59e0b); border: none; border-radius: 0 10px 10px 0; color: white; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; }
-        .search-form button:hover { opacity: 0.9; }
-        .search-tag { color: #94a3b8; font-size: 0.88rem; }
-        .search-tag a { color: #fde047; text-decoration: none; margin-left: 8px; }
+        .search-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-form {
+            display: flex;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-form input {
+            flex: 1;
+            padding: 9px 14px;
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(234, 179, 8, 0.2);
+            border-radius: 10px 0 0 10px;
+            color: #e2e8f0;
+            font-size: 0.88rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-form input:focus {
+            border-color: #eab308;
+        }
+
+        .search-form input::placeholder {
+            color: #475569;
+        }
+
+        .search-form button {
+            padding: 9px 16px;
+            background: linear-gradient(135deg, #eab308, #f59e0b);
+            border: none;
+            border-radius: 0 10px 10px 0;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .search-form button:hover {
+            opacity: 0.9;
+        }
+
+        .search-tag {
+            color: #94a3b8;
+            font-size: 0.88rem;
+        }
+
+        .search-tag a {
+            color: #fde047;
+            text-decoration: none;
+            margin-left: 8px;
+        }
     </style>
 </head>
+
 <body>
 
-<nav class="navbar">
-    <div class="navbar-content">
-        <a href="/admin/courses" class="navbar-brand">
-            <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
-            <span class="brand-text">ĐKHP Admin</span>
-        </a>
-        <div class="navbar-links">
-            <a href="/" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
-            <a href="/profile" class="user-info" style="text-decoration:none;">
-                <div class="avatar"><i class="fas fa-user"></i></div>
-                <span sec:authentication="name">Admin</span>
-                <span class="role-badge">Admin</span>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="/admin/courses" class="navbar-brand">
+                <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+                <span class="brand-text">ĐKHP Admin</span>
             </a>
-            <form th:action="@{/logout}" method="post" class="logout-form">
-                <button type="submit"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            <div class="navbar-links">
+                <a href="/" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
+                <a href="/profile" class="user-info" style="text-decoration:none;">
+                    <img th:if="${currentUser != null && currentUser.image != null && !currentUser.image.isEmpty()}"
+                        th:src="${currentUser.image}" alt="Avatar"
+                        style="width:34px;height:34px;border-radius:50%;object-fit:cover;">
+                    <div class="avatar"
+                        th:if="${currentUser == null || currentUser.image == null || currentUser.image.isEmpty()}"><i
+                            class="fas fa-user"></i></div>
+                    <span sec:authentication="name">Admin</span>
+                    <span class="role-badge">Admin</span>
+                </a>
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-book"></i> Quản lý Học phần</h1>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <a href="/admin/courses/add" class="btn-add">
+                    <i class="fas fa-plus"></i> Thêm học phần
+                </a>
+                <a href="/admin/categories" class="btn-add"
+                    style="background: linear-gradient(135deg, #8b5cf6, #6366f1);">
+                    <i class="fas fa-folder"></i> Quản lý danh mục
+                </a>
+                <a href="/admin/users/add" class="btn-add"
+                    style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                    <i class="fas fa-user-plus"></i> Tạo tài khoản
+                </a>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-row">
+            <form class="search-form" th:action="@{/admin/courses}" method="get" id="adminSearchForm">
+                <select name="categoryId" id="adminCategorySelect"
+                    style="padding:9px 12px;background:rgba(15,15,35,0.8);border:1px solid rgba(234,179,8,0.2);border-right:none;border-radius:10px 0 0 10px;color:#e2e8f0;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;cursor:pointer;min-width:140px;">
+                    <option value="">Danh mục</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"
+                        th:selected="${categoryId != null && categoryId == cat.id}">Category</option>
+                </select>
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm học phần...">
+                <button type="submit"><i class="fas fa-search"></i></button>
             </form>
+            <div class="search-tag" th:if="${(keyword != null && !keyword.isEmpty()) || categoryId != null}">
+                Kết quả: <strong th:text="${#lists.size(courses)}">0</strong> học phần
+                <a href="/admin/courses"><i class="fas fa-times"></i> Xóa bộ lọc</a>
+            </div>
         </div>
-    </div>
-</nav>
 
-<main class="main-content">
-    <div class="page-header">
-        <h1 class="page-title"><i class="fas fa-book"></i> Quản lý Học phần</h1>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <a href="/admin/courses/add" class="btn-add">
-                <i class="fas fa-plus"></i> Thêm học phần
-            </a>
-            <a href="/admin/categories" class="btn-add" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);">
-                <i class="fas fa-folder"></i> Quản lý danh mục
-            </a>
-            <a href="/admin/users/add" class="btn-add" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
-                <i class="fas fa-user-plus"></i> Tạo tài khoản
-            </a>
+        <div class="alert alert-success" th:if="${param.added}">
+            <i class="fas fa-check-circle"></i> Thêm học phần thành công!
         </div>
-    </div>
-
-    <!-- Search -->
-    <div class="search-row">
-        <form class="search-form" th:action="@{/admin/courses}" method="get">
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm học phần...">
-            <button type="submit"><i class="fas fa-search"></i></button>
-        </form>
-        <div class="search-tag" th:if="${keyword != null && !keyword.isEmpty()}">
-            Kết quả: <strong th:text="${#lists.size(courses)}">0</strong> học phần
-            <a href="/admin/courses"><i class="fas fa-times"></i> Xóa bộ lọc</a>
+        <div class="alert alert-success" th:if="${param.updated}">
+            <i class="fas fa-check-circle"></i> Cập nhật học phần thành công!
         </div>
-    </div>
+        <div class="alert alert-danger" th:if="${param.deleted}">
+            <i class="fas fa-trash"></i> Đã xóa học phần!
+        </div>
 
-    <div class="alert alert-success" th:if="${param.added}">
-        <i class="fas fa-check-circle"></i> Thêm học phần thành công!
-    </div>
-    <div class="alert alert-success" th:if="${param.updated}">
-        <i class="fas fa-check-circle"></i> Cập nhật học phần thành công!
-    </div>
-    <div class="alert alert-danger" th:if="${param.deleted}">
-        <i class="fas fa-trash"></i> Đã xóa học phần!
-    </div>
+        <div id="course-table-container">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Hình ảnh</th>
+                            <th>Tên học phần</th>
+                            <th>Tín chỉ</th>
+                            <th>Giảng viên</th>
+                            <th>Danh mục</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="course, iter : ${courses}">
+                            <td th:text="${iter.index + 1}">1</td>
+                            <td>
+                                <img class="course-img"
+                                    th:src="${course.image != null && !course.image.isEmpty()} ? ${course.image} : 'https://via.placeholder.com/80x50'"
+                                    th:alt="${course.name}">
+                            </td>
+                            <td th:text="${course.name}">Tên</td>
+                            <td><span class="credits-badge" th:text="${course.credits}">3</span></td>
+                            <td th:text="${course.lecturer}">GV</td>
+                            <td>
+                                <span class="category-badge" th:if="${course.category != null}"
+                                    th:text="${course.category.name}">Cat</span>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a th:href="@{/admin/courses/edit/{id}(id=${course.id})}" class="btn-edit">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <a th:if="${enrollCountMap[course.id] > 0}"
+                                        th:href="@{/admin/courses/enrollments/{id}(id=${course.id})}" class="btn-edit"
+                                        style="background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: #86efac;">
+                                        <i class="fas fa-users"></i> DS (<span
+                                            th:text="${enrollCountMap[course.id]}">0</span>)
+                                    </a>
+                                    <a th:if="${enrollCountMap[course.id] == 0}"
+                                        th:href="@{/admin/courses/delete/{id}(id=${course.id})}" class="btn-delete"
+                                        onclick="return confirm('Bạn có chắc muốn xóa học phần này?')">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div><!-- /course-table-container -->
+    </main>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Hình ảnh</th>
-                    <th>Tên học phần</th>
-                    <th>Tín chỉ</th>
-                    <th>Giảng viên</th>
-                    <th>Danh mục</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="course, iter : ${courses}">
-                    <td th:text="${iter.index + 1}">1</td>
-                    <td>
-                        <img class="course-img"
-                             th:src="${course.image != null && !course.image.isEmpty()} ? ${course.image} : 'https://via.placeholder.com/80x50'"
-                             th:alt="${course.name}">
-                    </td>
-                    <td th:text="${course.name}">Tên</td>
-                    <td><span class="credits-badge" th:text="${course.credits}">3</span></td>
-                    <td th:text="${course.lecturer}">GV</td>
-                    <td>
-                        <span class="category-badge" th:if="${course.category != null}" th:text="${course.category.name}">Cat</span>
-                    </td>
-                    <td>
-                        <div class="actions">
-                            <a th:href="@{/admin/courses/edit/{id}(id=${course.id})}" class="btn-edit">
-                                <i class="fas fa-edit"></i> Sửa
-                            </a>
-                            <a th:if="${enrollCountMap[course.id] > 0}"
-                               th:href="@{/admin/courses/enrollments/{id}(id=${course.id})}" class="btn-edit"
-                               style="background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: #86efac;">
-                                <i class="fas fa-users"></i> DS (<span th:text="${enrollCountMap[course.id]}">0</span>)
-                            </a>
-                            <a th:if="${enrollCountMap[course.id] == 0}"
-                               th:href="@{/admin/courses/delete/{id}(id=${course.id})}" class="btn-delete"
-                               onclick="return confirm('Bạn có chắc muốn xóa học phần này?')">
-                                <i class="fas fa-trash"></i> Xóa
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</main>
+    <script>
+        (function () {
+            const searchInput = document.querySelector('#adminSearchForm input[name="keyword"]');
+            const categorySelect = document.getElementById('adminCategorySelect');
+            const container = document.getElementById('course-table-container');
+            let debounceTimer;
+
+            function doLiveSearch() {
+                const keyword = searchInput ? searchInput.value.trim() : '';
+                const categoryId = categorySelect ? categorySelect.value : '';
+                const params = new URLSearchParams();
+                if (keyword) params.set('keyword', keyword);
+                if (categoryId) params.set('categoryId', categoryId);
+
+                fetch('/admin/courses?' + params.toString())
+                    .then(r => r.text())
+                    .then(html => {
+                        const doc = new DOMParser().parseFromString(html, 'text/html');
+                        const newContainer = doc.getElementById('course-table-container');
+                        if (newContainer && container) {
+                            container.innerHTML = newContainer.innerHTML;
+                        }
+                        // Update search tag too
+                        const oldTag = document.querySelector('.search-tag');
+                        const newTag = doc.querySelector('.search-tag');
+                        if (oldTag && newTag) {
+                            oldTag.innerHTML = newTag.innerHTML;
+                            oldTag.style.display = '';
+                        } else if (oldTag && !newTag) {
+                            oldTag.style.display = 'none';
+                        } else if (!oldTag && newTag) {
+                            const searchRow = document.querySelector('.search-row');
+                            if (searchRow) searchRow.appendChild(newTag);
+                        }
+                    })
+                    .catch(err => console.error('Live search error:', err));
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(doLiveSearch, 300);
+                });
+            }
+
+            if (categorySelect) {
+                categorySelect.addEventListener('change', doLiveSearch);
+            }
+        })();
+    </script>
 
 </body>
+
 </html>

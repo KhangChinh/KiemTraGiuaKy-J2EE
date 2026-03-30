@@ -67,7 +67,10 @@
             <a href="/" class="nav-link"><i class="fas fa-home"></i> Trang chủ</a>
             <a href="/admin/courses" class="nav-link"><i class="fas fa-book"></i> Học phần</a>
             <a href="/profile" class="user-info">
-                <div class="avatar"><i class="fas fa-user"></i></div>
+                <img th:if="${currentUser != null && currentUser.image != null && !currentUser.image.isEmpty()}"
+                     th:src="${currentUser.image}" alt="Avatar"
+                     style="width:34px;height:34px;border-radius:50%;object-fit:cover;">
+                <div class="avatar" th:if="${currentUser == null || currentUser.image == null || currentUser.image.isEmpty()}"><i class="fas fa-user"></i></div>
                 <span sec:authentication="name">Admin</span>
                 <span class="role-badge">Admin</span>
             </a>
